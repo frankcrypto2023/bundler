@@ -92,6 +92,7 @@ export class BundleManager {
         maxFeePerGas: feeData.maxFeePerGas ?? 0
       })
       tx.chainId = this.provider._network.chainId
+      console.log('=============tx', tx)
       let ret: string
       if (this.conditionalRpc) {
         const signedTx = await this.signer.signTransaction(tx)

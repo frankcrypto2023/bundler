@@ -14,7 +14,7 @@ const fundsigner: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     console.log('funding hardhat account', account)
     await signer.sendTransaction({
       to: account,
-      value: parseEther('1').sub(bal)
+      value: parseEther('100').sub(bal)
     })
   }
 }
