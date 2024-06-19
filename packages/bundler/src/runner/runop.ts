@@ -617,10 +617,12 @@ class Runner {
     return e
   }
 
-  async runUserOp (target: string, data: string): Promise<void> {
+  async runUserOp(target: string, data: string): Promise<void> {
+    let iface = new utils.Interface(ACCOUNT_ABI);
+    console.log('-----------data', data, iface.encodeFunctionData('entryPoint', []))
     const userOp = await this.accountApi.createSignedUserOp({
       target,
-      data
+      data: iface.encodeFunctionData('entryPoint', [])
     })
     try {
       const userOpHash = await this.bundlerProvider.sendUserOpToBundler(userOp)
@@ -636,7 +638,7 @@ class Runner {
     let iface = new utils.Interface(ACCOUNT_ABI);
     // console.log('--------------------data', iface.encodeFunctionData('execute', [newAddr, parseEther('0.01'), '0x']))
     const userOp = await this.accountApi.createSignedUserOp({
-      value: parseEther('0.01'),
+      value: parseEther('0.0001'),
       target: newAddr,
       data: '0x'
         // data: iface.encodeFunctionData('execute', [newAddr, parseEther('0.01'), '0x'])
@@ -649,6 +651,25 @@ class Runner {
       throw this.parseExpectedGas(e)
     }
   }
+    
+    async runUserOp3(target: string, data: string): Promise<void> {
+        let iface = new utils.Interface(ACCOUNT_ABI);
+        console.log(target, '--------------')
+        // console.log('--------------------data', iface.encodeFunctionData('execute', [newAddr, parseEther('0.01'), '0x']))
+        const userOp = await this.accountApi.createSignedUserOp({
+            target: '0xe3f7Ca3f794d795fB7D47718f688a3E6a61Cb399',
+            // data: iface.encodeFunctionData('set(uint)', [4])
+            data: '0x60fe47b10000000000000000000000000000000000000000000000000000000000000004'
+        })
+        try {
+            console.log('-----------------------------------', userOp);
+            const userOpHash = await this.bundlerProvider.sendUserOpToBundler(userOp)
+            const txid = await this.accountApi.getUserOpReceipt(userOpHash)
+            console.log('reqId', userOpHash, 'txid=', txid)
+        } catch (e: any) {
+            throw this.parseExpectedGas(e)
+        }
+    }
 }
 
 async function main (): Promise<void> {
@@ -713,7 +734,7 @@ async function main (): Promise<void> {
   }
   const accountOwner = new Wallet('0x'.padEnd(66, '7'))
     // console.log('------------------', '0x'.padEnd(66, '7'))
-  const index = opts.nonce ?? Date.now()
+  const index = 0
   console.log('using account index=', index)
   const client = await new Runner(provider, opts.bundlerUrl, accountOwner, opts.entryPoint, index).init(deployFactory ? signer : undefined)
 
@@ -731,11 +752,7 @@ async function main (): Promise<void> {
   console.log('account address', addr, 'deployed=', await isDeployed(addr), 'bal=', formatEther(bal))
   const gasPrice = await provider.getGasPrice()
   // TODO: actual required val
-    const requiredBalance = gasPrice.mul(4e7)
-    await signer.sendTransaction({
-        to: accountOwner.address,
-        value: requiredBalance.sub(bal)
-    }).then(async tx => await tx.wait())
+    const requiredBalance = gasPrice.mul(4e6)
   if (bal.lt(requiredBalance.div(2))) {
     console.log('funding account to', requiredBalance.toString())
     
@@ -749,13 +766,16 @@ async function main (): Promise<void> {
 
   const dest = addr
   const data = keccak256(Buffer.from('entryPoint()')).slice(0, 10)
-  console.log('data=', data)
-  await client.runUserOp(dest, data)
-  console.log('after run1')
-  // client.accountApi.overheads!.perUserOp = 30000
-  await client.runUserOp2(dest, data)
-  console.log('after run2')
-  await bundler?.stop()
+//   console.log('data=', data)
+//   await client.runUserOp(dest, data)
+//   console.log('after run1')
+//   // client.accountApi.overheads!.perUserOp = 30000
+//   await client.runUserOp2(dest, data)
+//   console.log('after run2')
+//     await bundler?.stop()
+    await client.runUserOp3(dest, data)
+    console.log('after run3')
+    await bundler?.stop()
 }
 
 void main()

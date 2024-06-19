@@ -38,7 +38,8 @@ const config: HardhatUserConfig = {
       url: 'http://localhost:8545/',
       saveDeployments: false
     },
-    goerli: getInfuraNetwork('goerli')
+    goerli: getInfuraNetwork('goerli'),
+    qngtest: getNetwork('http://216.230.226.189:1234')
   },
   solidity: {
     version: '0.8.23',

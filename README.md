@@ -59,3 +59,5 @@ see [SDK Readme](./packages/sdk/README.md)
 ## utils
 
 internal utility methods/test contracts, used by other packages.
+
+yarn run runop --deployFactory --network http://216.230.226.189:1234 --entryPoint 0x0000000071727De22E5E9d8BAf0edAc6f37da032 --mnemonic ./localconfig/mnemonic.txt
